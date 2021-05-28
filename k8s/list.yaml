@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: list
+  name: list
+  namespace: default
+spec:
+  ports:
+    - port: 8080
+      name: http
+  selector:
+    app: list
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: list
+  name: list
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: list
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: list
+    spec:
+      serviceAccountName: list
+      containers:
+        - image: docker.io/cmwylie19/remote-addr-v1:latest
+          name: list
+          env:
+            - name: MONGO_URL
+              value: mongodb://list-db-service:27017/lists
+          ports:
+            - containerPort: 8080
+              name: http
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: list

@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mo-list-pvc
+spec:
+  storageClassName: generic
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: mo-list-pv
+  labels:
+    type: local
+spec:
+  storageClassName: generic
+  claimRef:
+    namespace: default
+    name: mo-list-pvc
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/var/lib/mongo"
+---
+apiVersion: apps/v1        
+kind: Deployment
+metadata:
+  labels:          
+    app: list-db
+  name: list-db 
+spec:         
+  replicas: 1    
+  selector: 
+    matchLabels:
+      app: list-db-pod
+  template:
+    metadata:
+      labels:
+        app: list-db-pod
+    spec:
+      containers:
+      - name: mongodb
+        volumeMounts:
+          - mountPath: /var/lib/mongo
+            name: mo-list
+        image: mongo:4.2
+        ports:
+        - containerPort: 27017
+      volumes:
+      - name: mo-list
+        persistentVolumeClaim:
+          claimName: mo-list-pvc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: list-db
+  name: list-db-service
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: list-db-pod
+  type: ClusterIP
