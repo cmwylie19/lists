@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cmwylie19/lists/helper"
-	"github.com/cmwylie19/lists/models"
+	// "github.com/cmwylie19/lists/helper"
+	// "github.com/cmwylie19/lists/models"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
